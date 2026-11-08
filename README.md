@@ -1,4 +1,4 @@
-# Captador de Cargas (Smart Cargas) — Projeto de Portfólio
+# Scrapper Cervejaria — Projeto de Portfólio
 
 > **Aviso:** versão de portfólio. Nomes de empresa, credenciais, usuários, URLs e dados reais foram removidos ou substituídos por valores fictícios (`CARGO`, `Portal`, `example.com`). O código é mostrado apenas para demonstrar arquitetura e habilidades técnicas; não está afiliado a nenhuma empresa e não contém dados operacionais. Use variáveis de ambiente para qualquer configuração.
 
