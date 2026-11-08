@@ -21,7 +21,7 @@ function ItensTable({ itens }) {
             <th>Origem</th>
             <th>Destino</th>
             <th>Data carregamento</th>
-            <th>Status SmartCargas</th>
+            <th>Status CargaPrioritaria</th>
             <th>Reprogramação</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@ function ItensTable({ itens }) {
               <td>{item.origem || '--'}</td>
               <td>{item.destino || '--'}</td>
               <td>{item.data_carregamento || '--'}</td>
-              <td>{item.status_smartcargas || '--'}</td>
+              <td>{item.status_prioritaria || '--'}</td>
               <td>{item.reprogramacao || '--'}</td>
             </tr>
           ))}

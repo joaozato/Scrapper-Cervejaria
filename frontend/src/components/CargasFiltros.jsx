@@ -291,7 +291,7 @@ export default function CargasFiltros({
             placeholder="Todos os Tipos"
           />
           <MultiSelectDropdown
-            options={['Smart Cargas', 'Pool de Cargas']}
+            options={['Carga Prioritária', 'Pool de Cargas']}
             selected={fonteFilter}
             onChange={setFonteFilter}
             placeholder="Todas as Fontes"

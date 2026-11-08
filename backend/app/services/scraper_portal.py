@@ -39,7 +39,7 @@ async def log_and_snap(page, msg: str, cards_read=None, total_cards=None):
         except:
             pass
 
-# A lista de cargas (Smart Cargas / Pool) rola dentro de um contêiner próprio, e a roda do mouse só rola o que
+# A lista de cargas (Carga Prioritária / Pool) rola dentro de um contêiner próprio, e a roda do mouse só rola o que
 # está debaixo do ponteiro: com o mouse parado no canto da tela nada rolava e o lazy load parava nos 30 primeiros
 # cards. Tudo aqui é mouse real (move + wheel), sem executar JavaScript na página.
 async def _mouse_sobre_a_lista(page, icons):
@@ -95,7 +95,7 @@ PORTAL_URL = os.getenv("PORTAL_URL", "https://portal.example.com/login")
 PORTAL_USER = settings.PORTAL_USER
 PORTAL_PASS = settings.PORTAL_PASS
 
-# Guarda o (dia, round) do Smart Cargas já processado nesta execução do processo, para blindar
+# Guarda o (dia, round) do Carga Prioritária já processado nesta execução do processo, para blindar
 # contra execução manual + automática caindo no mesmo round (o que somaria a mesma carga em dobro).
 _ultimo_round_smart_processado = None
 
@@ -143,7 +143,7 @@ async def registrar_aceite(db, carga: Carga, passe: str):
 
 
 async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
-    """apenas_aceites: passe extra (antes de a janela do Smart Cargas fechar) que só
+    """apenas_aceites: passe extra (antes de a janela do Carga Prioritária fechar) que só
     procura cargas que passaram a "Aceita" desde o passe completo — não soma
     quantidade nem cria cargas novas."""
     global _ultimo_round_smart_processado
@@ -164,7 +164,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
             logger.info("Scraper já em execução, pulando este disparo do Pool (10min).")
             return
         if scraper_state.get("modo_atual") == "pool":
-            # O passe completo (Smart Cargas + Pool) tem prioridade sobre o de
+            # O passe completo (Carga Prioritária + Pool) tem prioridade sobre o de
             # 10min: pede pro passe de 10min encerrar (mesmo sinal do botão de
             # parada de emergência) e espera até ~30s ele ceder antes de seguir.
             logger.info("Passe completo bateu durante o passe de 10min do Pool - pedindo pra ele encerrar e assumindo.")
@@ -250,16 +250,16 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
             await log_and_snap(page, "Aguardando login concluir e painel carregar...")
             
             tabs_to_process = [
-                {"name": "Smart Cargas", "selector": 'text=/Smart\\s*Cargas/i'},
+                {"name": "Carga Prioritária", "selector": 'text=/Smart\\s*Cargas/i'},
                 {"name": "Pool de Cargas", "selector": 'text=/Pool\\s*de\\s*Cargas/i'}
             ]
             if apenas_pool:
                 # Passe rápido de 10 em 10 minutos: só Pool de Cargas, pra não
-                # abrir o Smart Cargas (que já tem sua própria cadência horária
+                # abrir o Carga Prioritária (que já tem sua própria cadência horária
                 # e o guard de round_hora) fora de hora.
                 tabs_to_process = [t for t in tabs_to_process if t["name"] == "Pool de Cargas"]
             elif apenas_aceites:
-                tabs_to_process = [t for t in tabs_to_process if t["name"] == "Smart Cargas"]
+                tabs_to_process = [t for t in tabs_to_process if t["name"] == "Carga Prioritária"]
 
             from sqlalchemy import select, update
             async with SessionLocal() as db:
@@ -267,12 +267,12 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                     tab_name = tab["name"]
                     tab_sel = tab["selector"]
 
-                    if tab_name == "Smart Cargas":
+                    if tab_name == "Carga Prioritária":
                         hoje_utc = datetime.now(timezone.utc).date()
                         hora_atual = (datetime.now(timezone.utc) - timedelta(hours=3)).hour
                         round_atual = (hoje_utc, hora_atual)
                         if not apenas_aceites and _ultimo_round_smart_processado == round_atual:
-                            await log_and_snap(page, f"Smart Cargas já processado neste round ({hora_atual}h) hoje. Pulando para não contar a mesma carga em dobro.")
+                            await log_and_snap(page, f"Carga Prioritária já processado neste round ({hora_atual}h) hoje. Pulando para não contar a mesma carga em dobro.")
                             continue
 
                     try:
@@ -401,7 +401,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                             }
                         
                             # Container do card na lista (não o modal) - usado tanto pra achar a tag
-                            # "Aceita" (Smart Cargas) quanto o bloco de valor que só existe no card
+                            # "Aceita" (Carga Prioritária) quanto o bloco de valor que só existe no card
                             # do Pool de Cargas quando a carga tem tarifa definida (ver abaixo).
                             card_element = None
                             try:
@@ -411,7 +411,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                             except Exception:
                                 card_element = None
 
-                            if tab_name == "Smart Cargas" and card_element is not None:
+                            if tab_name == "Carga Prioritária" and card_element is not None:
                                 try:
                                     # Procura pela tag "Aceita" dentro desse card
                                     tag_labels = card_element.locator('.clb-tag--label')
@@ -528,13 +528,13 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                         pode_ter_duplicata_legada = False
                         if c["load_id"]:
                             # load_id agora é único por (load_id, fonte): a mesma carga pode existir
-                            # como registro no Smart Cargas e, separadamente, no Pool de Cargas.
+                            # como registro no Carga Prioritária e, separadamente, no Pool de Cargas.
                             query = select(Carga).where(
                                 Carga.load_id == c["load_id"],
                                 Carga.fonte == c["fonte"]
                             )
-                        elif tab_name == "Smart Cargas":
-                            # No Smart Cargas, a agregação é diária e busca SEM filtrar por round_hora:
+                        elif tab_name == "Carga Prioritária":
+                            # No Carga Prioritária, a agregação é diária e busca SEM filtrar por round_hora:
                             # a mesma carga aparece de novo em rounds seguintes do mesmo dia enquanto
                             # ninguém confirma, e precisamos achar o registro de um round anterior para
                             # NÃO duplicar (ver bloco abaixo, que só soma se for o round atual).
@@ -579,7 +579,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                                 # Portal (mesmo load_id, nova data de carregamento), sincroniza aqui -
                                 # senão o registro fica preso na data antiga indefinidamente.
                                 existente.data_carregamento = c["data_coleta"]
-                            if tab_name == "Smart Cargas":
+                            if tab_name == "Carga Prioritária":
                                 if existente.data_captura.date() == hoje_utc:
                                     if existente.round_hora == hora_atual:
                                         # Mesmo round: soma normalmente (cards duplicados dentro da
@@ -587,7 +587,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                                         existente.quantidade += c["quantidade"]
                                     else:
                                         # Já capturada em round anterior HOJE: mesma carga ainda não
-                                        # confirmada reaparecendo no Smart Cargas. Ignora para não
+                                        # confirmada reaparecendo no Carga Prioritária. Ignora para não
                                         # inflar contagem/duplicar - só volta a contar amanhã.
                                         pass
                                 else:
@@ -602,7 +602,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                                 atualizadas += 1
                         else:
                             status = "Aguardando confirmação"
-                            if tab_name == "Smart Cargas":
+                            if tab_name == "Carga Prioritária":
                                 status = "Aceita" if c.get("is_aceita") else "Aguardando aceite"
 
                             nova_carga = Carga(
@@ -622,13 +622,13 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                                 round_hora=hora_atual
                             )
                             db.add(nova_carga)
-                            if tab_name == "Smart Cargas" and c.get("is_aceita"):
+                            if tab_name == "Carga Prioritária" and c.get("is_aceita"):
                                 await registrar_aceite(db, nova_carga, passe)
                             await registrar_valor(db, nova_carga.load_id, nova_carga.fonte, nova_carga.origem, nova_carga.destino, valor)
                             novas_inseridas += 1
                             
                     await db.commit()
-                    if tab_name == "Smart Cargas" and not apenas_aceites:
+                    if tab_name == "Carga Prioritária" and not apenas_aceites:
                         _ultimo_round_smart_processado = round_atual
                     await log_and_snap(page, f"[{tab_name}] Salvo! {novas_inseridas} novas, {atualizadas} quantidades atualizadas.", cards_read=cards_count, total_cards=cards_count)
 
@@ -666,7 +666,7 @@ async def run_report_scraper(origem_captura: str = "agendado", executado_por_id=
                     break
                 await asyncio.sleep(0.5)
         else:
-            # Passe completo / de aceites (Smart Cargas): não se interrompe (perderia aceites), então espera
+            # Passe completo / de aceites (Carga Prioritária): não se interrompe (perderia aceites), então espera
             # até 10min por uma vaga em vez de desistir, já que a janela do relatório é de 1h.
             logger.info("Scraper já em execução - relatório vai aguardar até 10min por uma vaga...")
             for _ in range(120):
@@ -880,7 +880,7 @@ async def run_report_scraper(origem_captura: str = "agendado", executado_por_id=
                             Carga.origem == origem.strip(),
                             Carga.destino == destino.strip(),
                             Carga.data_carregamento == data.strip(),
-                            Carga.fonte == "Smart Cargas"
+                            Carga.fonte == "Carga Prioritária"
                         )
                         result = await db.execute(query)
                         cargas = result.scalars().all()
@@ -907,7 +907,7 @@ async def run_report_scraper(origem_captura: str = "agendado", executado_por_id=
 async def start_scraper_scheduler():
     scheduler = AsyncIOScheduler(timezone="America/Sao_Paulo")
     
-    # Horário 1: 07h10 (Primeiro tiro da manhã) - passe completo (Smart Cargas + Pool)
+    # Horário 1: 07h10 (Primeiro tiro da manhã) - passe completo (Carga Prioritária + Pool)
     scheduler.add_job(run_scraper, 'cron', hour=7, minute=10)
 
     # Horários 2 ao Fim: 08h às 22h, aos 40 minutos (08:40, 09:40, 10:40...) - passe completo
@@ -925,7 +925,7 @@ async def start_scraper_scheduler():
     # em 0/10/20/30/40/50) - roda no "vão" antes de qualquer uma delas. Se
     # mesmo assim pegar outro passe ainda em andamento, o guard no início de
     # run_report_scraper só pula esta rodada e tenta de novo na próxima hora.
-    # Passe extra de aceites no Smart Cargas, 5 min antes de a janela fechar (o passe
+    # Passe extra de aceites no Carga Prioritária, 5 min antes de a janela fechar (o passe
     # completo roda no :40 e perderia aceites feitos pelos operadores depois disso).
     scheduler.add_job(run_scraper, 'cron', hour='7-22', minute=55, kwargs={"apenas_aceites": True})
 

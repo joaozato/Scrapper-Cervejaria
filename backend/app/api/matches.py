@@ -91,7 +91,7 @@ async def get_provaveis_matches(
                         "origem": "Guarulhos - SP",
                         "destino": "Duque de Caxias - RJ",
                         "valor": 3500.0,
-                        "fonte": "Smart Cargas",
+                        "fonte": "Carga Prioritária",
                         "data_carregamento": "2026-07-15"
                     }
                 ]
@@ -129,7 +129,7 @@ async def get_provaveis_matches(
                         "origem": "Betim - MG",
                         "destino": "Serra - ES",
                         "valor": 2100.0,
-                        "fonte": "Smart Cargas",
+                        "fonte": "Carga Prioritária",
                         "data_carregamento": "2026-07-17"
                     }
                 ]
@@ -148,7 +148,7 @@ async def get_provaveis_matches(
                         "origem": "Aparecida de Goiânia - GO",
                         "destino": "Taguatinga - DF",
                         "valor": 1200.0,
-                        "fonte": "Smart Cargas",
+                        "fonte": "Carga Prioritária",
                         "data_carregamento": "2026-07-18"
                     }
                 ]

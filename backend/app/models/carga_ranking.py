@@ -7,7 +7,7 @@ from app.database import Base
 
 
 class CargaRanking(Base):
-    """Carga vista nos rankings (1º, 2º ou 3º lugar) do Smart Cargas na leitura do
+    """Carga vista nos rankings (1º, 2º ou 3º lugar) do Carga Prioritária na leitura do
     início da hora. Uma linha por (leitura, posição, carga). Uma leitura sem
     nenhuma carga não grava linhas — quem diz que ela rodou é o log do scraper."""
     __tablename__ = "carga_rankings"

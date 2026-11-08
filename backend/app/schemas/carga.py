@@ -16,7 +16,7 @@ class CargaBase(BaseModel):
     tipo_caminhao: Optional[str] = None
     quantidade: int = 1
     load_id: Optional[str] = None
-    fonte: str = "Smart Cargas"
+    fonte: str = "Carga Prioritária"
     tags: Optional[str] = None
     ultima_visualizacao: Optional[datetime] = None
     round_hora: Optional[int] = None

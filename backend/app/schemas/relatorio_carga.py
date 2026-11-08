@@ -31,7 +31,7 @@ class RelatorioCargaItemResponse(BaseModel):
     origem: Optional[str] = None
     destino: Optional[str] = None
     data_carregamento: Optional[str] = None
-    status_smartcargas: Optional[str] = None
+    status_prioritaria: Optional[str] = None
     aceita: Optional[str] = None
     confirmado: Optional[str] = None
     reprogramacao: Optional[str] = None

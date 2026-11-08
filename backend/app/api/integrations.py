@@ -117,7 +117,7 @@ async def get_relatorio_detail_integration(
     db: AsyncSession = Depends(get_db),
 ):
     """Detalha uma captura do relatório de cargas, com todos os itens (Lata)
-    lidos naquele CSV — inclui status_smartcargas, aceita/confirmado e a data
+    lidos naquele CSV — inclui status_prioritaria, aceita/confirmado e a data
     de carregamento de cada pedido."""
     captura = await db.get(RelatorioCaptura, relatorio_id)
     if not captura:
@@ -142,7 +142,7 @@ async def get_relatorio_comparacao_integration(
     db: AsyncSession = Depends(get_db),
 ):
     """Diff dessa captura contra a captura anterior do mesmo dia: pedidos
-    novos, que sumiram do relatório, ou que mudaram de status_smartcargas.
+    novos, que sumiram do relatório, ou que mudaram de status_prioritaria.
     'elegivel_erp' sinaliza os pedidos de Lata já confirmados explicitamente."""
     captura = await db.get(RelatorioCaptura, relatorio_id)
     if not captura:

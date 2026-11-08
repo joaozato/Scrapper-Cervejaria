@@ -1,8 +1,8 @@
-"""Aceites vistos no Smart Cargas x confirmadas no relatório do Portal.
+"""Aceites vistos no Carga Prioritária x confirmadas no relatório do Portal.
 
 O relatório é a verdade sobre o que foi repassado à CARGO: aqui "confirmada" é a
 linha do relatório (Lata e Arroz, a mais recente por pedido) com Status
-SmartCargas "confirmad...". As aceitas vêm de carga_aceites (scraper, qualquer
+CargaPrioritaria "confirmad...". As aceitas vêm de carga_aceites (scraper, qualquer
 operador). O dia é o de carregamento; o horário é o da detecção (Brasília).
 """
 from collections import defaultdict
@@ -58,14 +58,14 @@ async def calcular_aceites(db: AsyncSession, data_ini: date, data_fim: date) -> 
     )).scalars().all()
     ultimo = {i.pedido_insumos: i for i in linhas}
     itens = [i for i in ultimo.values() if (d := _data(i.data_carregamento)) and data_ini <= d <= data_fim]
-    confirmados = [i for i in itens if i.status_smartcargas and "confirmad" in i.status_smartcargas.lower()]
+    confirmados = [i for i in itens if i.status_prioritaria and "confirmad" in i.status_prioritaria.lower()]
 
-    # Cargas que "vieram" no Smart Cargas (uma linha por carga/dia, com quantidade).
+    # Cargas que "vieram" no Carga Prioritária (uma linha por carga/dia, com quantidade).
     corte_cargas = datetime.combine(data_ini, datetime.min.time(), tzinfo=timezone.utc) - timedelta(days=14)
     vieram_por_rota = defaultdict(int)
     por_rota_dia = defaultdict(lambda: defaultdict(lambda: {"vieram": 0, "aceitas": 0, "confirmadas": 0}))
     for c in (await db.execute(
-        select(Carga).where(Carga.fonte == "Smart Cargas", Carga.data_captura >= corte_cargas)
+        select(Carga).where(Carga.fonte == "Carga Prioritária", Carga.data_captura >= corte_cargas)
     )).scalars().all():
         d = _data(c.data_carregamento)
         if d and data_ini <= d <= data_fim:
@@ -131,7 +131,7 @@ async def calcular_aceites(db: AsyncSession, data_ini: date, data_fim: date) -> 
             ),
             key=lambda r: (-r["vieram"], -r["aceitas"]),
         )[:40],
-        "observacao": "O relatório (Lata e Arroz) é a verdade do que foi repassado à CARGO. Por rota: vieram = cargas vistas no Smart Cargas, aceitas = detectadas como aceitas, confirmadas = linhas confirmadas no relatório.",
+        "observacao": "O relatório (Lata e Arroz) é a verdade do que foi repassado à CARGO. Por rota: vieram = cargas vistas no Carga Prioritária, aceitas = detectadas como aceitas, confirmadas = linhas confirmadas no relatório.",
     }
 
 

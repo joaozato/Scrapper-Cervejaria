@@ -1,8 +1,8 @@
-"""Scraper SÓ DE LEITURA dos rankings (1º, 2º e 3º lugar) do Smart Cargas.
+"""Scraper SÓ DE LEITURA dos rankings (1º, 2º e 3º lugar) do Carga Prioritária.
 
 Roda no início de cada hora, em sessão própria, com estado próprio
 (`ranking_state`): não usa o `scraper_state` nem a trava `is_running` do scraper
-principal, então não briga com os passes do Pool/Smart Cargas/relatório e eles
+principal, então não briga com os passes do Pool/Carga Prioritária/relatório e eles
 não o pulam. Não clica em "Confirmar" nem em nada que altere a carga.
 
 Cada carga encontrada num ranking é gravada em carga_rankings; o cruzamento com
@@ -74,7 +74,7 @@ async def _login(page) -> bool:
         await page.wait_for_selector(tab_sel, timeout=30000)
         await page.click(tab_sel)
     except Exception as e:
-        logger.error(f"[Ranking] aba Smart Cargas não encontrada em 30s: {e}")
+        logger.error(f"[Ranking] aba Carga Prioritária não encontrada em 30s: {e}")
         return False
     await asyncio.sleep(random.uniform(1.0, 1.8))
     return True
@@ -182,7 +182,7 @@ async def run_ranking_scraper():
         await Stealth().apply_stealth_async(page)
         try:
             if not await _login(page):
-                _status("Falha ao abrir o Smart Cargas. Leitura encerrada.", is_running=False)
+                _status("Falha ao abrir o Carga Prioritária. Leitura encerrada.", is_running=False)
                 return
 
             lidas: list[dict] = []

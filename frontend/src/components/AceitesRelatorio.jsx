@@ -60,7 +60,7 @@ export default function AceitesRelatorio() {
       </div>
       <div className="card-body">
         <p style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: 0 }}>
-          Cargas com carregamento no período (até +5 dias). "Aceitas" são as vistas como aceitas no Smart Cargas
+          Cargas com carregamento no período (até +5 dias). "Aceitas" são as vistas como aceitas no Carga Prioritária
           por qualquer operador; "confirmadas" vêm do relatório do Portal (Lata e Arroz), a verdade do que foi repassado à CARGO.
         </p>
         {erro && <p style={{ color: '#ef4444' }}>{erro}</p>}
@@ -115,7 +115,7 @@ export default function AceitesRelatorio() {
 
             <h4 style={{ margin: '28px 0 4px' }}>Desdobramento por rota</h4>
             <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: '0 0 8px' }}>
-              Vieram = cargas vistas no Smart Cargas · Aceitas = detectadas como aceitas · Confirmadas = confirmadas no relatório.
+              Vieram = cargas vistas no Carga Prioritária · Aceitas = detectadas como aceitas · Confirmadas = confirmadas no relatório.
             </p>
             <div style={{ overflowX: 'auto' }}>
               <table className="data-table" style={{ width: '100%' }}>

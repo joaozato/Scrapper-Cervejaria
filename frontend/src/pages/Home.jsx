@@ -21,7 +21,7 @@ export default function Home() {
 
           <ol style={{ paddingLeft: '24px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <li>
-              <strong>Captura e coleta:</strong> o sistema consulta o Portal (Pool de Cargas e Smart Cargas) e registra as cargas disponíveis, com origem, destino, data de carregamento, tipo de caminhão e valor. Você acompanha tudo em <em>Monitor e Cargas</em>, com filtros e gráficos.
+              <strong>Captura e coleta:</strong> o sistema consulta o Portal (Pool de Cargas e Carga Prioritária) e registra as cargas disponíveis, com origem, destino, data de carregamento, tipo de caminhão e valor. Você acompanha tudo em <em>Monitor e Cargas</em>, com filtros e gráficos.
             </li>
             <li>
               <strong>Aceite:</strong> as cargas de interesse são aceitas no Portal, manualmente ou pelo aceite automático, que segue as rotas e os limites definidos no monitor. As cargas aceitas ficam na aba de aceitas.

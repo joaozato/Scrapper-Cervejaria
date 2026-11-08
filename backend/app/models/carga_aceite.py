@@ -8,7 +8,7 @@ from app.database import Base
 
 
 class CargaAceite(Base):
-    """Momento em que o scraper viu a carga do Smart Cargas como "Aceita" (por
+    """Momento em que o scraper viu a carga do Carga Prioritária como "Aceita" (por
     qualquer pessoa, não só pelo bot). Uma linha por carga: gravada na primeira
     detecção e só tem a quantidade atualizada depois."""
     __tablename__ = "carga_aceites"

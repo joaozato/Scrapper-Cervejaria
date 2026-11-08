@@ -70,7 +70,7 @@ export default function RankingAceites() {
       </div>
       <div className="card-body">
         <p style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: 0 }}>
-          A cada início de hora o scraper lê o 1º, 2º e 3º lugar do Smart Cargas e compara com o que foi aceito
+          A cada início de hora o scraper lê o 1º, 2º e 3º lugar do Carga Prioritária e compara com o que foi aceito
           no round anterior (passes das :40 e :55): mostra se a carga foi para o ranking e em qual posição.
         </p>
         {msg && <p style={{ fontSize: '0.85rem' }}>{msg}</p>}

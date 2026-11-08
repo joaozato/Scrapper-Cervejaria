@@ -76,7 +76,7 @@ async def salvar_captura(
             origem=_col(row, "Nome original") or None,
             destino=_col(row, "Nome do destino") or None,
             data_carregamento=_col(row, "Data de carregamento") or None,
-            status_smartcargas=_col(row, "Status SmartCargas") or None,
+            status_prioritaria=_col(row, "Status CargaPrioritaria") or None,
             aceita=_col(row, "Aceita") or None,
             confirmado=_col(row, "Confirmado") or None,
             reprogramacao=_col(row, "Reprogramação") or None,
@@ -96,9 +96,9 @@ async def salvar_captura(
 MATERIAIS_RELATORIO = ("lata", "arroz")
 
 
-def _elegivel_erp(status_smartcargas: Optional[str], tipo_material: Optional[str] = None) -> bool:
+def _elegivel_erp(status_prioritaria: Optional[str], tipo_material: Optional[str] = None) -> bool:
     return (
-        bool(status_smartcargas) and "confirmad" in status_smartcargas.lower()
+        bool(status_prioritaria) and "confirmad" in status_prioritaria.lower()
         and (tipo_material or "").strip().lower() == "lata"
     )
 
@@ -151,24 +151,24 @@ async def comparar_com_anterior(db: AsyncSession, captura_atual: RelatorioCaptur
                 pedido_insumos=chave,
                 tipo_mudanca="novo",
                 status_anterior=None,
-                status_atual=item_atual.status_smartcargas,
+                status_atual=item_atual.status_prioritaria,
                 origem=item_atual.origem,
                 destino=item_atual.destino,
                 data_carregamento=item_atual.data_carregamento,
-                elegivel_erp=_elegivel_erp(item_atual.status_smartcargas, item_atual.tipo_material),
+                elegivel_erp=_elegivel_erp(item_atual.status_prioritaria, item_atual.tipo_material),
             ))
-        elif (item_anterior.status_smartcargas or "") != (item_atual.status_smartcargas or ""):
+        elif (item_anterior.status_prioritaria or "") != (item_atual.status_prioritaria or ""):
             diffs.append(RelatorioCargaDiff(
                 relatorio_atual_id=captura_atual.id,
                 relatorio_anterior_id=captura_anterior.id,
                 pedido_insumos=chave,
                 tipo_mudanca="status_alterado",
-                status_anterior=item_anterior.status_smartcargas,
-                status_atual=item_atual.status_smartcargas,
+                status_anterior=item_anterior.status_prioritaria,
+                status_atual=item_atual.status_prioritaria,
                 origem=item_atual.origem,
                 destino=item_atual.destino,
                 data_carregamento=item_atual.data_carregamento,
-                elegivel_erp=_elegivel_erp(item_atual.status_smartcargas, item_atual.tipo_material),
+                elegivel_erp=_elegivel_erp(item_atual.status_prioritaria, item_atual.tipo_material),
             ))
 
     for chave, item_anterior in mapa_anterior.items():
@@ -181,7 +181,7 @@ async def comparar_com_anterior(db: AsyncSession, captura_atual: RelatorioCaptur
                 relatorio_anterior_id=captura_anterior.id,
                 pedido_insumos=chave,
                 tipo_mudanca="sumiu",
-                status_anterior=item_anterior.status_smartcargas,
+                status_anterior=item_anterior.status_prioritaria,
                 status_atual=None,
                 origem=item_anterior.origem,
                 destino=item_anterior.destino,

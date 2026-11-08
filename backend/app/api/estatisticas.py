@@ -18,7 +18,7 @@ async def aceites_x_relatorio(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """Aceitas detectadas no Smart Cargas x confirmadas no relatório, por dia e horário."""
+    """Aceitas detectadas no Carga Prioritária x confirmadas no relatório, por dia e horário."""
     return await aceites_service.calcular_para_dias(db, dias)
 
 
@@ -28,7 +28,7 @@ async def aceites_x_ranking(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """Aceites do round anterior x o que apareceu no 1º/2º/3º lugar do Smart Cargas."""
+    """Aceites do round anterior x o que apareceu no 1º/2º/3º lugar do Carga Prioritária."""
     return await ranking_service.calcular_ranking(db, dias)
 
 

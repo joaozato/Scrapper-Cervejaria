@@ -268,7 +268,7 @@ export default function CargasDashboard() {
       <div className="page-header">
         <div>
           <h2>Painel Inteligente CARGO</h2>
-          <div className="page-header-subtitle">Visão consolidada das cargas do Pool e Smart Cargas</div>
+          <div className="page-header-subtitle">Visão consolidada das cargas do Pool e Carga Prioritária</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{

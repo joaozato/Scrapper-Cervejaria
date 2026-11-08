@@ -14,14 +14,14 @@ async def run_startup_migrations():
         async with engine.begin() as conn:
             await conn.execute(text("ALTER TABLE disponibilidades ADD COLUMN IF NOT EXISTS tarifa_cargo VARCHAR(3) DEFAULT 'NOK' NOT NULL"))
             await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS load_id VARCHAR(100)"))
-            await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS fonte VARCHAR(50) DEFAULT 'Smart Cargas' NOT NULL"))
+            await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS fonte VARCHAR(50) DEFAULT 'Carga Prioritária' NOT NULL"))
             await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS tags VARCHAR(255)"))
             await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS ultima_visualizacao TIMESTAMP WITH TIME ZONE"))
             await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS round_hora INTEGER"))
             await conn.execute(text("ALTER TABLE cargas ADD COLUMN IF NOT EXISTS observacao VARCHAR(255)"))
             await conn.execute(text("ALTER TABLE motoristas ADD COLUMN IF NOT EXISTS rota_frequente VARCHAR(255)"))
             await conn.execute(text("UPDATE cargas SET ultima_visualizacao = data_captura WHERE ultima_visualizacao IS NULL"))
-            # load_id pode se repetir entre fontes (a mesma carga migra do Smart Cargas pro Pool de Cargas
+            # load_id pode se repetir entre fontes (a mesma carga migra do Carga Prioritária pro Pool de Cargas
             # quando não é aceita), então a unicidade precisa ser por (load_id, fonte), não global.
             await conn.execute(text("ALTER TABLE cargas DROP CONSTRAINT IF EXISTS cargas_load_id_key"))
             await conn.execute(text(
@@ -39,7 +39,7 @@ async def run_startup_migrations():
                 "tipo_carga, quantidade, valor, detectado_em, passe) "
                 "SELECT gen_random_uuid(), c.id, c.load_id, c.fonte, c.origem, c.destino, c.data_carregamento, "
                 "c.tipo_carga, COALESCE(c.quantidade, 1), c.valor, COALESCE(c.ultima_visualizacao, c.data_captura), 'historico' "
-                "FROM cargas c WHERE c.fonte = 'Smart Cargas' AND c.status_portal IN ('Aceita', 'Confirmada') "
+                "FROM cargas c WHERE c.fonte = 'Carga Prioritária' AND c.status_portal IN ('Aceita', 'Confirmada') "
                 "AND NOT EXISTS (SELECT 1 FROM carga_aceites a WHERE a.carga_id = c.id)"
             ))
             

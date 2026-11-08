@@ -1,5 +1,5 @@
 """Lista de rotas (origem -> destino) acompanhadas de perto pela CARGO, com o histórico
-completo e a recorrência de cada uma, no Smart Cargas e no Pool de Cargas.
+completo e a recorrência de cada uma, no Carga Prioritária e no Pool de Cargas.
 
 A lista vem de app/data/rotas_acompanhadas.csv (formato da planilha oficial
 dados_origem_destino.csv, substituível, com a coluna opcional "Código Portal").
@@ -131,7 +131,7 @@ async def calcular_rotas_acompanhadas(
         return {"cargas": 0, "linhas": 0, "valores": [], "dias": set(), "saidas": 0,
                 "por_dia_semana": defaultdict(int), "por_mes": defaultdict(lambda: {"cargas": 0, "valores": []}), "primeira": None, "ultima": None}
 
-    acc = {r: {"Pool de Cargas": novo(), "Smart Cargas": novo()} for r in ROTAS}
+    acc = {r: {"Pool de Cargas": novo(), "Carga Prioritária": novo()} for r in ROTAS}
     aceitas = {r: {"qtd": 0, "valor": 0.0} for r in ROTAS}
 
     for c in cargas:
@@ -192,7 +192,7 @@ async def calcular_rotas_acompanhadas(
     total_pool = total_smart = 0
     for r in ROTAS:
         pool = acc[r]["Pool de Cargas"]
-        smart = acc[r]["Smart Cargas"]
+        smart = acc[r]["Carga Prioritária"]
         total_pool += pool["cargas"]
         total_smart += smart["cargas"]
         rotas.append({
@@ -293,7 +293,7 @@ async def resumo_csv(db: AsyncSession, dias: int) -> str:
     w.writerow(["Rota", "Fonte", "Mês", "Cargas", "Valor médio", "Valor mín", "Valor máx",
                 "Dias com carga", "Primeira vez", "Última vez", "Saídas do Pool"])
     for r in dados["rotas"]:
-        for fonte, chave in (("Pool de Cargas", "pool"), ("Smart Cargas", "smart")):
+        for fonte, chave in (("Pool de Cargas", "pool"), ("Carga Prioritária", "smart")):
             f = r[chave]
             if not f["cargas"]:
                 w.writerow([r["rota"], fonte, "Sem cargas no período", 0, "", "", "", "", "", "", ""])

@@ -84,7 +84,7 @@ def _parse_data(s: Optional[str]):
     return None
 
 
-FONTES = {"pool": ["Pool de Cargas"], "smart": ["Smart Cargas"], "ambos": ["Pool de Cargas", "Smart Cargas"]}
+FONTES = {"pool": ["Pool de Cargas"], "smart": ["Carga Prioritária"], "ambos": ["Pool de Cargas", "Carga Prioritária"]}
 
 
 def normalizar_fonte(fonte) -> str:
@@ -129,7 +129,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
     completo=False (usado só pro período anterior, na detecção de anomalias)
     pula o que não entra na comparação (reajustes, reprogramações, aceites).
     insumos (minúsculos) restringe tudo aos insumos escolhidos; None = todos.
-    fonte: pool | smart | ambos. O Smart Cargas é agregado por dia (sem saída), então
+    fonte: pool | smart | ambos. O Carga Prioritária é agregado por dia (sem saída), então
     não entra em permanência; conta em volume, horários, valores e rotas."""
     agora = datetime.now(timezone.utc)
     ref = fim or agora
@@ -166,18 +166,18 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
             por_dia_entrada[captura_br.strftime('%Y-%m-%d')] += q
             # O Smart é uma linha agregada por dia (hora da captura não é a chegada real):
             # horário e dia da semana só consideram o Pool.
-            if c.fonte != "Smart Cargas":
+            if c.fonte != "Carga Prioritária":
                 por_hora_entrada[captura_br.hour] += q
                 mapa_calor[captura_br.weekday()][captura_br.hour] += q
         if c.valor is not None:
-            if c.fonte == "Smart Cargas":
+            if c.fonte == "Carga Prioritária":
                 valores_smart.append(float(c.valor))
             else:
                 valores_rota[rota].append(float(c.valor))
                 valores_todos.append(float(c.valor))
         if c.status_portal == "Confirmada":
             confirmadas += 1
-        if c.fonte == "Smart Cargas":
+        if c.fonte == "Carga Prioritária":
             cargas_smart += c.quantidade or 1
             continue
         cargas_pool += 1
@@ -316,7 +316,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
 
     resultado["reprogramacoes"], detalhe["reprogramadas"] = await _calcular_reprogramacoes(db, inicio, ref, insumos)
     resultado["reajustes"], detalhe["reajustes"] = await _calcular_reajustes(db, inicio, ref, insumos)
-    if fonte != "pool":  # aceites só existem no Smart Cargas
+    if fonte != "pool":  # aceites só existem no Carga Prioritária
         from app.services import aceites_service
         resultado["aceites"] = await aceites_service.calcular_para_dias(db, dias, ref)
 
@@ -597,7 +597,7 @@ def montar_destaques(m: dict) -> list:
     if vs.get("cargas_com_valor"):
         out.append({
             "tipo": "info",
-            "titulo": "Valor das cargas do Smart Cargas",
+            "titulo": "Valor das cargas do Carga Prioritária",
             "texto": f"Média de {_brl(vs['media'])} (de {_brl(vs['minimo'])} a {_brl(vs['maximo'])}) em {vs['cargas_com_valor']} registros com valor (separado do Pool).",
         })
     v = m["valor"]
@@ -802,7 +802,7 @@ def _escopo_insumos(metricas: dict) -> str:
     txt = f" Os dados foram filtrados apenas para o(s) insumo(s): {', '.join(ins)}." if ins else ""
     fonte = metricas.get("fonte", "pool")
     if fonte != "pool":
-        txt += f" Fonte das cargas: {fonte} (Smart Cargas é contagem diária, sem tempo de permanência)."
+        txt += f" Fonte das cargas: {fonte} (Carga Prioritária é contagem diária, sem tempo de permanência)."
     return txt
 
 

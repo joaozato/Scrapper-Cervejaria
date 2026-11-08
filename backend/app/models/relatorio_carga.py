@@ -43,7 +43,7 @@ class RelatorioCargaItem(Base):
     origem: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     destino: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     data_carregamento: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
-    status_smartcargas: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    status_prioritaria: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     aceita: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     confirmado: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
     reprogramacao: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)

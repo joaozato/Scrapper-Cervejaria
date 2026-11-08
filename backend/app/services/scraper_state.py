@@ -7,7 +7,7 @@ scraper_state = {
     "cards_read": 0,
     "total_cards": 0,
     "cancel_requested": False,
-    "modo_atual": None  # "full" (Smart Cargas + Pool) ou "pool" (só Pool, passe de 10min)
+    "modo_atual": None  # "full" (Carga Prioritária + Pool) ou "pool" (só Pool, passe de 10min)
 }
 
 def update_status(status_msg: str, is_running: bool = None, cards_read: int = None, total_cards: int = None):

@@ -46,7 +46,7 @@ class Carga(Base):
         String(100), nullable=True
     )
     fonte: Mapped[str] = mapped_column(
-        String(50), default="Smart Cargas", nullable=False
+        String(50), default="Carga Prioritária", nullable=False
     )
     data_captura: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
