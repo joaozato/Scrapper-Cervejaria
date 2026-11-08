@@ -1,0 +1,44 @@
+# Produção local: Postgres 18 + app (API + frontend) + túnel Cloudflare.
+# Uso: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# Nada fica exposto na rede: o app só escuta em 127.0.0.1 e o túnel é a única porta de entrada.
+services:
+  db:
+    image: postgres:18
+    container_name: cargo_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cargo
+      POSTGRES_USER: cargo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - cargo_pgdata:/var/lib/postgresql
+      - ./backups:/backups:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cargo -d cargo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: cargo_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    shm_size: "1gb" # Chromium
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      ENVIRONMENT: production
+      COOKIE_SECURE: "true"
+      DATABASE_URL: postgresql+asyncpg://cargo:${POSTGRES_PASSWORD}@db:5432/cargo
+      SECRET_KEY: ${SECRET_KEY}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      INTEGRATION_API_KEY: ${INTEGRATION_API_KEY}
+      PORTAL_USER: ${PORTAL_USER}
+      PORTAL_PASS: ${PORTAL_PASS}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+
+volumes:
+  cargo_pgdata:

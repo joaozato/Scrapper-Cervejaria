@@ -1,0 +1,34 @@
+# .env
+*.env
+
+# Python
+.venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+frontend/dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Debug/Tests
+debug_*.html
+debug_*.png
+*.log
+backups/
+.env.prod
+*.db
+*.dump
+*.xlsx
+.env*

@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: cargo-disponibilidade
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    branch: main
+    plan: standard # 2 GB de RAM: o Chromium do Playwright não cabe em 512 MB
+    healthCheckPath: /api/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_URL # Internal Database URL do Postgres no Render
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGINS # URL pública do serviço no Render
+        sync: false
+      - key: PORTAL_USER
+        sync: false
+      - key: PORTAL_PASS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: INTEGRATION_API_KEY
+        sync: false
