@@ -32,8 +32,8 @@ const labelPeriodo = (dias) => PERIODOS.find((p) => p.dias === dias)?.label || `
 
 const FONTES = [
   { id: 'pool', label: 'Pool de Cargas' },
-  { id: 'smart', label: 'Carga Prioritária' },
-  { id: 'ambos', label: 'Pool + Smart' },
+  { id: 'prioritaria', label: 'Carga Prioritária' },
+  { id: 'ambos', label: 'Pool + Prioritária' },
 ];
 const labelFonte = (id) => FONTES.find((f) => f.id === id)?.label || 'Pool de Cargas';
 
@@ -83,7 +83,7 @@ function montarCsv(dados, dias, insumos) {
   add('Tempo médio no pool (min)', pool.permanencia.media_min ?? '');
   add('Mediana no pool (min)', pool.permanencia.mediana_min ?? '');
   add('Valor médio Pool (R$)', metricas.valor?.media ?? '');
-  if (metricas.valor_smart?.cargas_com_valor) add('Valor médio Carga Prioritária (R$)', metricas.valor_smart.media ?? '');
+  if (metricas.valor_prioritaria?.cargas_com_valor) add('Valor médio Carga Prioritária (R$)', metricas.valor_prioritaria.media ?? '');
   if (metricas.assistente) {
     add('Aceitas Assistente', metricas.assistente.aceitas);
     add('Confirmadas Assistente', metricas.assistente.confirmadas);
@@ -278,7 +278,7 @@ export default function InsightsModal({ onClose }) {
 
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '12px 0' }}>
                   <Kpi label="Cargas vistas no pool" valor={pool.cargas_vistas} />
-                  {fonteGerada !== 'pool' && <Kpi label="Cargas Carga Prioritária" valor={pool.cargas_smart} />}
+                  {fonteGerada !== 'pool' && <Kpi label="Cargas Carga Prioritária" valor={pool.cargas_prioritaria} />}
                   <Kpi label="Já saíram" valor={pool.saidas} />
                   <Kpi label="Ainda no pool" valor={pool.ainda_no_pool} />
                   {dados.metricas.assistente && <Kpi label="Aceitas Assistente" valor={dados.metricas.assistente.aceitas} />}

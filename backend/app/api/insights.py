@@ -38,7 +38,7 @@ async def listar_insumos(
 async def insights_cargas(
     dias: int = Query(7, ge=1, le=3650),
     insumos: str = Query("", description="Insumos separados por vírgula; vazio = todos"),
-    fonte: str = Query("pool", description="pool | smart | ambos"),
+    fonte: str = Query("pool", description="pool | prioritaria | ambos"),
     narrativa: bool = Query(False, description="Pede também a análise em texto da LLM"),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),

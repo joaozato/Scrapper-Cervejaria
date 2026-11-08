@@ -84,7 +84,7 @@ def _parse_data(s: Optional[str]):
     return None
 
 
-FONTES = {"pool": ["Pool de Cargas"], "smart": ["Carga Prioritária"], "ambos": ["Pool de Cargas", "Carga Prioritária"]}
+FONTES = {"pool": ["Pool de Cargas"], "prioritaria": ["Carga Prioritária"], "ambos": ["Pool de Cargas", "Carga Prioritária"]}
 
 
 def normalizar_fonte(fonte) -> str:
@@ -129,7 +129,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
     completo=False (usado só pro período anterior, na detecção de anomalias)
     pula o que não entra na comparação (reajustes, reprogramações, aceites).
     insumos (minúsculos) restringe tudo aos insumos escolhidos; None = todos.
-    fonte: pool | smart | ambos. O Carga Prioritária é agregado por dia (sem saída), então
+    fonte: pool | prioritaria | ambos. O Carga Prioritária é agregado por dia (sem saída), então
     não entra em permanência; conta em volume, horários, valores e rotas."""
     agora = datetime.now(timezone.utc)
     ref = fim or agora
@@ -145,7 +145,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
     valores_rota = defaultdict(list)
     entradas_rota = defaultdict(int)
     valores_todos = []
-    valores_smart = []
+    valores_prioritaria = []
     por_hora_entrada = defaultdict(int)
     por_dia_entrada = defaultdict(int)
     mapa_calor = [[0] * 24 for _ in range(7)]
@@ -153,7 +153,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
     ainda_no_pool = 0
     saidas = 0
     confirmadas = 0
-    cargas_smart = 0
+    cargas_prioritaria = 0
     cargas_pool = 0
     for c in cargas:
         captura = _aware(c.data_captura)
@@ -164,21 +164,21 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
             captura_br = captura.astimezone(BR_TZ)
             q = c.quantidade or 1
             por_dia_entrada[captura_br.strftime('%Y-%m-%d')] += q
-            # O Smart é uma linha agregada por dia (hora da captura não é a chegada real):
+            # O Prioritária é uma linha agregada por dia (hora da captura não é a chegada real):
             # horário e dia da semana só consideram o Pool.
             if c.fonte != "Carga Prioritária":
                 por_hora_entrada[captura_br.hour] += q
                 mapa_calor[captura_br.weekday()][captura_br.hour] += q
         if c.valor is not None:
             if c.fonte == "Carga Prioritária":
-                valores_smart.append(float(c.valor))
+                valores_prioritaria.append(float(c.valor))
             else:
                 valores_rota[rota].append(float(c.valor))
                 valores_todos.append(float(c.valor))
         if c.status_portal == "Confirmada":
             confirmadas += 1
         if c.fonte == "Carga Prioritária":
-            cargas_smart += c.quantidade or 1
+            cargas_prioritaria += c.quantidade or 1
             continue
         cargas_pool += 1
         if visto and (agora - visto) < timedelta(minutes=MARGEM_SAIDA_MIN):
@@ -239,11 +239,11 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
         ],
     }
 
-    valor_smart = {
-        "cargas_com_valor": len(valores_smart),
-        "media": round(statistics.mean(valores_smart), 2) if valores_smart else None,
-        "minimo": round(min(valores_smart), 2) if valores_smart else None,
-        "maximo": round(max(valores_smart), 2) if valores_smart else None,
+    valor_prioritaria = {
+        "cargas_com_valor": len(valores_prioritaria),
+        "media": round(statistics.mean(valores_prioritaria), 2) if valores_prioritaria else None,
+        "minimo": round(min(valores_prioritaria), 2) if valores_prioritaria else None,
+        "maximo": round(max(valores_prioritaria), 2) if valores_prioritaria else None,
     }
 
     por_dia_semana = [{"dia": DIAS_SEMANA[i], "cargas": sum(mapa_calor[i])} for i in range(7)]
@@ -298,7 +298,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
         "gerado_em": agora.isoformat(),
         "pool": {
             "cargas_vistas": cargas_pool,
-            "cargas_smart": cargas_smart,
+            "cargas_prioritaria": cargas_prioritaria,
             "saidas": saidas,
             "ainda_no_pool": ainda_no_pool,
             "confirmadas": confirmadas,
@@ -307,7 +307,7 @@ async def calcular_metricas(db: AsyncSession, dias: int = 7, fim: Optional[datet
             "permanencia": permanencia,
         },
         "valor": valor,
-        "valor_smart": valor_smart,
+        "valor_prioritaria": valor_prioritaria,
         "relatorios": relatorios,
     }
 
@@ -549,7 +549,7 @@ def detectar_anomalias(atual: dict, anterior: dict) -> list:
 
 def tem_dados(m: dict) -> bool:
     cargo = m.get("assistente", {}).get("aceitas", 0)
-    return bool(m["pool"]["cargas_vistas"] or m["pool"].get("cargas_smart") or cargo or m["relatorios"]["capturas"]
+    return bool(m["pool"]["cargas_vistas"] or m["pool"].get("cargas_prioritaria") or cargo or m["relatorios"]["capturas"]
                 or m.get("reprogramacoes", {}).get("itens_analisados"))
 
 
@@ -593,7 +593,7 @@ def montar_destaques(m: dict) -> list:
                      f"{baixo['dia']} é o com menos ({baixo['cargas']}).",
         })
 
-    vs = m.get("valor_smart") or {}
+    vs = m.get("valor_prioritaria") or {}
     if vs.get("cargas_com_valor"):
         out.append({
             "tipo": "info",

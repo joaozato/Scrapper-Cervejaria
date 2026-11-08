@@ -189,16 +189,16 @@ async def calcular_rotas_acompanhadas(
         return d
 
     rotas = []
-    total_pool = total_smart = 0
+    total_pool = total_prioritaria = 0
     for r in ROTAS:
         pool = acc[r]["Pool de Cargas"]
-        smart = acc[r]["Carga Prioritária"]
+        prioritaria = acc[r]["Carga Prioritária"]
         total_pool += pool["cargas"]
-        total_smart += smart["cargas"]
+        total_prioritaria += prioritaria["cargas"]
         rotas.append({
             "rota": _rotulo(r),
             "pool": fonte_dict(pool, True),
-            "smart": fonte_dict(smart, False),
+            "prioritaria": fonte_dict(prioritaria, False),
             "aceitas": aceitas[r]["qtd"],
             "valor_aceito": round(aceitas[r]["valor"], 2),
         })
@@ -206,7 +206,7 @@ async def calcular_rotas_acompanhadas(
     return {
         "janela_dias": dias,
         "total_cargas_pool": total_pool,
-        "total_cargas_smart": total_smart,
+        "total_cargas_prioritaria": total_prioritaria,
         "rotas": rotas,
     }
 
@@ -218,7 +218,7 @@ CSV_COLUNAS = [
 
 
 async def exportar_csv(db: AsyncSession, dias: int) -> str:
-    """Uma linha por carga (Pool e Smart) que casa com as rotas da lista, na janela dos
+    """Uma linha por carga (Pool e Prioritária) que casa com as rotas da lista, na janela dos
     últimos `dias`. CSV com ';' e vírgula decimal, para abrir direto no Excel pt-BR."""
     rotas = carregar_rotas()
     inicio = datetime.now(timezone.utc) - timedelta(days=dias)
@@ -293,7 +293,7 @@ async def resumo_csv(db: AsyncSession, dias: int) -> str:
     w.writerow(["Rota", "Fonte", "Mês", "Cargas", "Valor médio", "Valor mín", "Valor máx",
                 "Dias com carga", "Primeira vez", "Última vez", "Saídas do Pool"])
     for r in dados["rotas"]:
-        for fonte, chave in (("Pool de Cargas", "pool"), ("Carga Prioritária", "smart")):
+        for fonte, chave in (("Pool de Cargas", "pool"), ("Carga Prioritária", "prioritaria")):
             f = r[chave]
             if not f["cargas"]:
                 w.writerow([r["rota"], fonte, "Sem cargas no período", 0, "", "", "", "", "", "", ""])

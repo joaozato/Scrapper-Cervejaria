@@ -3,7 +3,7 @@
 > Plataforma full stack que **captura cargas de um portal de parceiro sem API**, cruza com a disponibilidade de motoristas e entrega dashboards, rankings e um assistente de IA para a operação logística.
 
 > [!NOTE]
-> **Versão de portfólio.** Nomes de empresas, credenciais, usuários, URLs e dados reais foram removidos ou trocados por valores fictícios (`CARGO`, `Portal`, `example.com`). O repositório existe apenas para demonstrar arquitetura e habilidades técnicas. Não tem vínculo com nenhuma empresa e não contém dados operacionais.
+> **Versão de portfólio.** Este sistema foi desenvolvido sob medida para **uma cervejaria específica, cujo nome não é divulgado** por confidencialidade. Nomes de empresas, credenciais, usuários, URLs, plantas, rotas e dados reais foram removidos ou trocados por valores fictícios (`CARGO`, `Portal`, `Carga Prioritária`, `example.com`). O repositório existe apenas para demonstrar arquitetura e habilidades técnicas. Não tem vínculo público com nenhuma empresa e não contém dados operacionais.
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)

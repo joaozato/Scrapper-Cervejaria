@@ -97,7 +97,7 @@ PORTAL_PASS = settings.PORTAL_PASS
 
 # Guarda o (dia, round) do Carga Prioritária já processado nesta execução do processo, para blindar
 # contra execução manual + automática caindo no mesmo round (o que somaria a mesma carga em dobro).
-_ultimo_round_smart_processado = None
+_ultimo_round_prioritaria_processado = None
 
 # Flags do Chromium headless. As 4 primeiras já existiam (stealth/sandbox no
 # container). As de baixo desligam subsistemas do Chrome que não fazem falta
@@ -146,7 +146,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
     """apenas_aceites: passe extra (antes de a janela do Carga Prioritária fechar) que só
     procura cargas que passaram a "Aceita" desde o passe completo — não soma
     quantidade nem cria cargas novas."""
-    global _ultimo_round_smart_processado
+    global _ultimo_round_prioritaria_processado
     if not PORTAL_USER or not PORTAL_PASS:
         msg = "Credenciais do Portal não configuradas. Scraper cancelado."
         logger.warning(msg)
@@ -250,7 +250,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
             await log_and_snap(page, "Aguardando login concluir e painel carregar...")
             
             tabs_to_process = [
-                {"name": "Carga Prioritária", "selector": 'text=/Smart\\s*Cargas/i'},
+                {"name": "Carga Prioritária", "selector": 'text=/Prioritária\\s*Cargas/i'},
                 {"name": "Pool de Cargas", "selector": 'text=/Pool\\s*de\\s*Cargas/i'}
             ]
             if apenas_pool:
@@ -271,7 +271,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                         hoje_utc = datetime.now(timezone.utc).date()
                         hora_atual = (datetime.now(timezone.utc) - timedelta(hours=3)).hour
                         round_atual = (hoje_utc, hora_atual)
-                        if not apenas_aceites and _ultimo_round_smart_processado == round_atual:
+                        if not apenas_aceites and _ultimo_round_prioritaria_processado == round_atual:
                             await log_and_snap(page, f"Carga Prioritária já processado neste round ({hora_atual}h) hoje. Pulando para não contar a mesma carga em dobro.")
                             continue
 
@@ -324,8 +324,8 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                             logger.error(f"[Pool de Cargas] Pré-leitura dos cards falhou ({e}); lendo tudo pelo modal.")
                             resumo_cards, conhecidos = [], set()
                     logger.info(f"[tempo] pré-leitura dos cards: {asyncio.get_event_loop().time() - _t0:.0f}s ({len(resumo_cards)} cards)")
-                    # Pausas encurtadas: Pool 30% (cargas conhecidas nem abrem o modal); Smart 40%, mas abrindo
-                    # o modal de TODOS os cards (o card do Smart não traz o load_id, só o modal).
+                    # Pausas encurtadas: Pool 30% (cargas conhecidas nem abrem o modal); Prioritária 40%, mas abrindo
+                    # o modal de TODOS os cards (o card do Prioritária não traz o load_id, só o modal).
                     fator = 0.3 if tab_name == "Pool de Cargas" else 0.4
 
                     await log_and_snap(page, f"Lendo dados de todos os {current_count} cards em {tab_name} (somente leitura)...", total_cards=current_count)
@@ -629,7 +629,7 @@ async def run_scraper(apenas_pool: bool = False, apenas_aceites: bool = False):
                             
                     await db.commit()
                     if tab_name == "Carga Prioritária" and not apenas_aceites:
-                        _ultimo_round_smart_processado = round_atual
+                        _ultimo_round_prioritaria_processado = round_atual
                     await log_and_snap(page, f"[{tab_name}] Salvo! {novas_inseridas} novas, {atualizadas} quantidades atualizadas.", cards_read=cards_count, total_cards=cards_count)
 
             update_status("Finalizado com sucesso.", is_running=False)
@@ -914,7 +914,7 @@ async def start_scraper_scheduler():
     scheduler.add_job(run_scraper, 'cron', hour='8-22', minute=40)
 
     # Pool de Cargas a cada 10min, preenchendo os minutos que o passe completo
-    # não cobre - mesma janela de horário (07h-22h) já usada acima. Smart
+    # não cobre - mesma janela de horário (07h-22h) já usada acima. Prioritária
     # Cargas continua só no passe completo de hora em hora (seu round_hora já
     # é por hora cheia, não faria sentido rodar de 10 em 10).
     scheduler.add_job(run_scraper, 'cron', hour=7, minute='0,20,30,40,50', kwargs={"apenas_pool": True})

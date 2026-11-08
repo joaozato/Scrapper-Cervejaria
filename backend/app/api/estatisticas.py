@@ -53,7 +53,7 @@ async def exportar_rotas_acompanhadas(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    """CSV com cada carga (Pool e Smart) das rotas da lista de acompanhamento."""
+    """CSV com cada carga (Pool e Prioritária) das rotas da lista de acompanhamento."""
     conteudo = await rotas_acompanhadas.exportar_csv(db, dias)
     return Response(
         content=conteudo.encode("utf-8"),

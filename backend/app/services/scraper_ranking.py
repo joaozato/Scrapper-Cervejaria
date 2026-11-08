@@ -69,7 +69,7 @@ async def _login(page) -> bool:
     await page.click(submit_sel)
     await asyncio.sleep(random.uniform(1.5, 2.5))
 
-    tab_sel = 'text=/Smart\\s*Cargas/i'
+    tab_sel = 'text=/Prioritária\\s*Cargas/i'
     try:
         await page.wait_for_selector(tab_sel, timeout=30000)
         await page.click(tab_sel)
