@@ -122,6 +122,9 @@ React 19 + Vite, estado global com Zustand, gráficos com Recharts e cliente HTT
 
 ## ⚙️ Como rodar
 
+> [!IMPORTANT]
+> Por ser uma vitrine de código, o `requirements.txt` foi mantido **parcial** (sem Playwright, agendador e geração de planilhas). O projeto não roda de ponta a ponta apenas com `pip install`.
+
 Pré-requisitos: Node 20+, Python 3.11+, Docker (para o PostgreSQL).
 
 ```bash
